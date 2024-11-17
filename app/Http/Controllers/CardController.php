@@ -10,6 +10,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @OA\Tag(
+ *     name="Cards",
+ *     description=""
+ * )
+ */
 class CardController extends Controller
 {
     public function __construct()
@@ -18,8 +24,24 @@ class CardController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     */
+     * @OA\Get(
+     *   path="/cards",
+     *   security={{"bearer_token": {} }},
+     *   tags={"Cards"},
+     *   @OA\Parameter(
+     *     name="card_list_id",
+     *     required=true,
+     *     in="query",
+     *     @OA\Schema(type="string")
+     *   ),
+     *   description="Get cards",
+     *   operationId="get_cards",
+     *   @OA\Response(
+     *     response=200,
+     *     description="Success",
+     *   ),
+     * )
+    */
     public function index(Request $request)
     {
         $request->validate([
@@ -35,8 +57,30 @@ class CardController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
+     * @OA\Post(
+     *   path="/cards",
+     *   security={{"bearer_token": {} }},
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
+     *       @OA\Schema(
+     *         required={"card_list_id", "title", "order"},
+     *         @OA\Property(property="card_list_id", type="integer", example=""),
+     *         @OA\Property(property="title", type="string", example=""),
+     *         @OA\Property(property="order", type="integer", example=""),
+     *       )
+     *     )
+     *   ),
+     *   tags={"Cards"},
+     *   description="Create new card",
+     *   operationId="create_new_card",
+     *   @OA\Response(
+     *     response=200,
+     *     description="successful operation",
+     *   ),
+     * )
+    */
     public function store(Request $request)
     {
         $request->validate([
@@ -64,8 +108,24 @@ class CardController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
+     * @OA\Get(
+     *   path="/cards/{id}",
+     *   security={{"bearer_token": {} }},
+     *   tags={"Cards"},
+     *   description="Get specific card",
+     *   operationId="get_card",
+     *   @OA\Parameter(
+     *     name="id",
+     *     required=true,
+     *     in="path",
+     *     @OA\Schema(type="string")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Success",
+     *   ),
+     * )
+    */
     public function show(Card $card)
     {
         if($card->cardList->board->user_id != Auth::user()->id)
@@ -75,8 +135,38 @@ class CardController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
+     * @OA\Post(
+     *   path="/cards/{id}",
+     *   @OA\Parameter(
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     @OA\Schema(type="string"),
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
+     *       @OA\Schema(
+     *         @OA\Property(property="title", type="string", example=""),
+     *         @OA\Property(property="description", type="string", example=""),
+     *         @OA\Property(property="checked", type="string", enum={"0","1"}),
+     *         @OA\Property(property="priority", type="string", enum={"low","medium","hight","urgent"}),
+     *         @OA\Property(property="color", type="string", example=""),
+     *         @OA\Property(property="_method", type="string", format="string", example="PUT"),
+     *       )
+     *     )
+     *   ),
+     *   security={{"bearer_token": {} }},
+     *   tags={"Cards"},
+     *   description="Edit specific card",
+     *   operationId="edit_card",
+     *   @OA\Response(
+     *     response="200",
+     *     description="Success"
+     *   ),
+     * )
+    */
     public function update(Request $request, Card $card)
     {
         $request->validate([
@@ -101,6 +191,36 @@ class CardController extends Controller
         return new CardResource($card);
     }
 
+    /**
+     * @OA\Post(
+     *   path="/cards/{id}/reorder",
+     *   @OA\Parameter(
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     @OA\Schema(type="string"),
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
+     *       @OA\Schema(
+     *         @OA\Property(property="card_list_id", type="integer", example=""),
+     *         @OA\Property(property="order", type="integer", example=""),
+     *         @OA\Property(property="_method", type="string", format="string", example="PUT"),
+     *       )
+     *     )
+     *   ),
+     *   security={{"bearer_token": {} }},
+     *   tags={"Cards"},
+     *   description="Edit specific card order",
+     *   operationId="edit_card_order",
+     *   @OA\Response(
+     *     response="200",
+     *     description="Success"
+     *   ),
+     * )
+    */
     public function reorder(Request $request, Card $card)
     {
         $request->validate([
@@ -146,8 +266,24 @@ class CardController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     */
+     * @OA\Delete(
+     *   path="/cards/{id}",
+     *   @OA\Parameter(
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     @OA\Schema(type="string"),
+     *   ),
+     *   security={{"bearer_token": {} }},
+     *   tags={"Cards"},
+     *   description="Delete specific card",
+     *   operationId="delete_card",
+     *   @OA\Response(
+     *     response=200,
+     *     description="Success"
+     *   )
+     * )
+    */
     public function destroy(Card $card)
     {
         if($card->cardList->board->user_id != Auth::user()->id)

@@ -10,6 +10,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @OA\Tag(
+ *     name="Lists",
+ *     description=""
+ * )
+ */
 class CardListController extends Controller
 {
     public function __construct()
@@ -18,8 +24,24 @@ class CardListController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     */
+     * @OA\Get(
+     *   path="/lists",
+     *   security={{"bearer_token": {} }},
+     *   tags={"Lists"},
+     *   @OA\Parameter(
+     *     name="board_id",
+     *     required=true,
+     *     in="query",
+     *     @OA\Schema(type="string")
+     *   ),
+     *   description="Get lists",
+     *   operationId="get_lists",
+     *   @OA\Response(
+     *     response=200,
+     *     description="Success",
+     *   ),
+     * )
+    */
     public function index(Request $request)
     {
         $request->validate([
@@ -36,8 +58,30 @@ class CardListController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
+     * @OA\Post(
+     *   path="/lists",
+     *   security={{"bearer_token": {} }},
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
+     *       @OA\Schema(
+     *         required={"board_id", "name", "order"},
+     *         @OA\Property(property="board_id", type="integer", example=""),
+     *         @OA\Property(property="name", type="string", example=""),
+     *         @OA\Property(property="order", type="integer", example=""),
+     *       )
+     *     )
+     *   ),
+     *   tags={"Lists"},
+     *   description="Create new list",
+     *   operationId="create_new_list",
+     *   @OA\Response(
+     *     response=200,
+     *     description="successful operation",
+     *   ),
+     * )
+    */
     public function store(Request $request)
     {
         $request->validate([
@@ -62,8 +106,24 @@ class CardListController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
+     * @OA\Get(
+     *   path="/lists/{id}",
+     *   security={{"bearer_token": {} }},
+     *   tags={"Lists"},
+     *   description="Get specific list",
+     *   operationId="get_list",
+     *   @OA\Parameter(
+     *     name="id",
+     *     required=true,
+     *     in="path",
+     *     @OA\Schema(type="string")
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Success",
+     *   ),
+     * )
+    */
     public function show(CardList $list)
     {
         if($list->board->user_id != Auth::user()->id)
@@ -73,8 +133,35 @@ class CardListController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
+     * @OA\Post(
+     *   path="/lists/{id}",
+     *   @OA\Parameter(
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     @OA\Schema(type="string"),
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
+     *       @OA\Schema(
+     *         @OA\Property(property="name", type="string", example=""),
+     *         @OA\Property(property="order", type="string", example=""),
+     *         @OA\Property(property="_method", type="string", format="string", example="PUT"),
+     *       )
+     *     )
+     *   ),
+     *   security={{"bearer_token": {} }},
+     *   tags={"Lists"},
+     *   description="Edit specific list",
+     *   operationId="edit_list",
+     *   @OA\Response(
+     *     response="200",
+     *     description="Success"
+     *   ),
+     * )
+    */
     public function update(Request $request, CardList $list)
     {
         if($list->board->user_id != Auth::user()->id)
@@ -112,8 +199,24 @@ class CardListController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     */
+     * @OA\Delete(
+     *   path="/lists/{id}",
+     *   @OA\Parameter(
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     @OA\Schema(type="string"),
+     *   ),
+     *   security={{"bearer_token": {} }},
+     *   tags={"Lists"},
+     *   description="Delete specific list",
+     *   operationId="delete_list",
+     *   @OA\Response(
+     *     response=200,
+     *     description="Success"
+     *   )
+     * )
+    */
     public function destroy(CardList $list)
     {
         if($list->board->user_id != Auth::user()->id)

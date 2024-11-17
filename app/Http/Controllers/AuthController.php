@@ -8,6 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * @OA\Tag(
+ *     name="Auth",
+ *     description=""
+ * )
+ */
 class AuthController extends Controller
 {
     public function __construct()
@@ -15,6 +21,29 @@ class AuthController extends Controller
         $this->middleware('auth:sanctum')->only('logout');
     }
 
+    /**
+     * @OA\Post(
+     *   path="/login",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
+     *       @OA\Schema(
+     *         required={"email","password"},
+     *         @OA\Property(property="email", type="string", example=""),
+     *         @OA\Property(property="password", type="password", example=""),
+     *       )
+     *     )
+     *   ),
+     *   tags={"Auth"},
+     *   description="Login by email and password",
+     *   operationId="login",
+     *   @OA\Response(
+     *     response=200,
+     *     description="successful operation",
+     *   ),
+     * )
+    */
     public function login(Request $request)
     {
         $validated = $request->validate([
@@ -36,6 +65,31 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *   path="/register",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
+     *       @OA\Schema(
+     *         required={"name","email","password","password_confirmation"},
+     *         @OA\Property(property="name", type="string", example=""),
+     *         @OA\Property(property="email", type="string", example=""),
+     *         @OA\Property(property="password", type="password", example=""),
+     *         @OA\Property(property="password_confirmation", type="password", example=""),
+     *       )
+     *     )
+     *   ),
+     *   tags={"Auth"},
+     *   description="Register",
+     *   operationId="register",
+     *   @OA\Response(
+     *     response=200,
+     *     description="successful operation",
+     *   ),
+     * )
+    */
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -56,6 +110,19 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *   path="/logout",
+     *   security={{"bearer_token":{}}},
+     *   tags={"Auth"},
+     *   description="Logout authorized user",
+     *   operationId="logout",
+     *   @OA\Response(
+     *     response=200,
+     *     description="successful operation"
+     *   ),
+     * )
+    */
     public function logout()
     {
         Auth::user()->currentAccessToken()->delete();
